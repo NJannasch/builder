@@ -53,9 +53,10 @@ jobs:
           registry: ${{ env.REGISTRY }}
           password: ${{ secrets.GITHUB_TOKEN }}
           username: ${{ github.actor }}
-          tag: ${{ steps.meta.outputs.version }},latest
+          tag: ${{ steps.meta.outputs.version }}
           cache: true
           cache_registry: ${{ env.REGISTRY }}/${{ github.repository_owner }}/builder/cache
+          extra-args: --tag-with-latest
 
   build-with-docker:
     runs-on: ubuntu-latest
@@ -126,10 +127,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push with Buildah
+      - name: Build image with Buildah
+        id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
+          image: builder
           tags: ${{ steps.meta.outputs.tags }}
           containerfiles: |
             ./Dockerfile
-          push: true
+
+      - name: Push image to registry
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
