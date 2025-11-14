@@ -49,14 +49,14 @@ jobs:
       - name: Build and push with Kaniko
         uses: aevea/action-kaniko@master
         with:
-          image: ${{ github.repository_owner }}/builder
-          registry: ${{ env.REGISTRY }}
+          image: builder
+          registry: ${{ env.REGISTRY }}/${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
           username: ${{ github.actor }}
           tag: ${{ steps.meta.outputs.version }}
           cache: true
           cache_registry: ${{ env.REGISTRY }}/${{ github.repository_owner }}/builder/cache
-          extra-args: --tag-with-latest
+          tag_with_latest: true
 
   build-with-docker:
     runs-on: ubuntu-latest
